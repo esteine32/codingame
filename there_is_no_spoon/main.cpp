@@ -34,7 +34,7 @@ int main()
             {
 
                 int x1, y1, x2, y2;
-                x1 = y1 = x2 = y2= -1;
+                x1 = y1 = x2 = y2 = -1;
                 
                 for(int k = j+1; k<width; k++)
                 {
@@ -55,7 +55,6 @@ int main()
                         break;
                     }
                 }
-
 
                 cout << j << " " << i << " " << x1 << " "  << y1 << " " << x2 << " "  << y2 << endl; // Three coordinates: a node, its right neighbor, its bottom neighbor
             }

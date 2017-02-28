@@ -16,6 +16,7 @@ private:
 	int noOfwalls;
 
 public:
+	Player() : id(-1), x(-1), y(-1), noOfwalls(-1){}
 	Player(int id, int x, int y, int noOfwalls) : id(id), x(x), y(y), noOfwalls(noOfwalls){}
 	virtual ~Player();
 

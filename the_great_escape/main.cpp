@@ -2,10 +2,12 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 #include "Player.h"
 
 using namespace std;
+typedef shared_ptr<Player> PlayerPtr;
 
 /**
  * Auto-generated code below aims at helping you parse
@@ -50,38 +52,37 @@ enum Action
     Walk, PlaceWall    
 };
 
-vector<Player> listPlayers(int playerCount)
+vector<PlayerPtr> listPlayers(int playerCount)
 {
-    vector<Player> players;
+    vector<PlayerPtr> players;
     for (int i = 0; i < playerCount; i++) {
         int x; // x-coordinate of the player
         int y; // y-coordinate of the player
         int wallsLeft; // number of walls available for the player
         cin >> x >> y >> wallsLeft; cin.ignore();
-        
-        Player p(i, x, y, wallsLeft);
-        
+
+        PlayerPtr p(new Player(i, x, y, wallsLeft));
         players.push_back(p);
     }
 
     return players;
 };
 
-Player getMe(const vector<Player>& players, int myId){
-	for(Player player : players){
-		if(player.getId() == myId){
+PlayerPtr getMyPlayer(const vector<PlayerPtr>& players, int myId){
+	for(int i = 0; i<players.size(); ++i){
+		PlayerPtr player = players[i];
+		if(player->getId() == myId){
 			return player;
 		}
 	}
-	Player noPlayer;
-	return noPlayer;
+	return nullptr;
 }
 
-vector<Player> getOpponents(const vector<Player>& players, int myId){
-    vector<Player> opponents;
+vector<PlayerPtr> getOpponents(const vector<PlayerPtr>& players, int myId){
+    vector<PlayerPtr> opponents;
 
-	for(Player player : players){
-		if(player.getId() != myId){
+	for(PlayerPtr player : players){
+		if(player->getId() != myId){
 			opponents.push_back(player);
 		}
 	}
@@ -188,9 +189,9 @@ bool isUpPossible(const Node& n, const vector<Wall>& walls, int height)
     return possible;
 }
 
-int estimatedCost(const Player& p, const Node& n, int width, int height)
+int estimatedCost(PlayerPtr p, const Node& n, int width, int height)
 {
-    switch(p.getId())
+    switch(p->getId())
     {
         case 0:
             return (width - 1) - n.x;
@@ -199,6 +200,8 @@ int estimatedCost(const Player& p, const Node& n, int width, int height)
         case 2:
             return (height - 1) - n.y;
     }
+
+    return -1;
 }
 
 int getIndexOfSmallestNode(const vector<Node>& v)
@@ -241,6 +244,8 @@ bool isGoalReached(int id, const Node& n, int width, int height)
         case 2:
             return n.y == height -1 ;
     }
+
+    return -1;
 }
 
 
@@ -352,14 +357,14 @@ Direction reverseDirection(Direction d)
 
 
 
-AStarResult aStar(const Player& p, const vector<Wall>& walls, int width, int height)
+AStarResult aStar(const PlayerPtr p, const vector<Wall>& walls, int width, int height)
 {
     vector<Node> open;
     vector<Node> closed;
     
     Node start;
-    start.x = p.getX();
-    start.y = p.getY();
+    start.x = p->getX();
+    start.y = p->getY();
     start.connection = None;
     start.costSoFar = 0;
     start.estimatedTotalCost = estimatedCost(p, start, width, height);
@@ -375,7 +380,7 @@ AStarResult aStar(const Player& p, const vector<Wall>& walls, int width, int hei
         int currentIndex = getIndexOfSmallestNode(open);
         current = open[currentIndex];
         //cerr << "smallest: x=" << current.x << " y=" << current.y << " val=" << current.estimatedTotalCost << endl; 
-        if(isGoalReached(p.getId(), current, width, height))
+        if(isGoalReached(p->getId(), current, width, height))
         {
             //cerr << "GOAL" << endl;;
             break;
@@ -436,7 +441,7 @@ AStarResult aStar(const Player& p, const vector<Wall>& walls, int width, int hei
     
     AStarResult result;
     int length = 0;
-    if(!isGoalReached(p.getId(), current, width, height))
+    if(!isGoalReached(p->getId(), current, width, height))
     {
         result.direction = None;
         result.length = 0;
@@ -501,7 +506,7 @@ bool wallHasValidCoords(const Wall& w)
 
 
 
-bool canPlaceWall(vector<Wall>& walls, const Wall& newWall, const vector<Player>& opponents, const Player& me, int width, int height)
+bool canPlaceWall(vector<Wall>& walls, const Wall& newWall, const vector<PlayerPtr>& opponents, const PlayerPtr me, int width, int height)
 {
     if(!wallHasValidCoords(newWall))
     {
@@ -516,7 +521,7 @@ bool canPlaceWall(vector<Wall>& walls, const Wall& newWall, const vector<Player>
     }
 
     walls.push_back(newWall);
-    for(Player p: opponents)
+    for(PlayerPtr p: opponents)
     {
         AStarResult a = aStar(p, walls, width, height);
         if(a.direction == None)
@@ -544,13 +549,13 @@ string getWallStr(Wall w)
 {
     return to_string(w.x) + " " + to_string(w.y) + " " + w.orientation;
 }
-Wall getWallInMovingDirection(const Player& p, const Position& lastPosition)
+Wall getWallInMovingDirection(const PlayerPtr p, const Position& lastPosition)
 {
     Wall w;
 
-    int pId = p.getId();
-    int pX = p.getX();
-    int pY = p.getY();
+    int pId = p->getId();
+    int pX = p->getX();
+    int pY = p->getY();
     //up
     if(pX == lastPosition.x && pY < lastPosition.y)
     {
@@ -631,14 +636,14 @@ Wall getWallInMovingDirection(const Player& p, const Position& lastPosition)
     
 }
 
-Wall getWallInGoalDirection(const Player& p)
+Wall getWallInGoalDirection(const PlayerPtr p)
 {
     Wall w;
 
-    int pX = p.getX();
-    int pY = p.getY();
+    int pX = p->getX();
+    int pY = p->getY();
 
-    switch(p.getId())
+    switch(p->getId())
     {
         case 0:
             w.x = pX+1;
@@ -661,16 +666,16 @@ Wall getWallInGoalDirection(const Player& p)
     return w;
 }
 
-Wall getWallInGoalDirectionAccordingToMove(const Player& p, const Position& lastPosition)
+Wall getWallInGoalDirectionAccordingToMove(const PlayerPtr p, const Position& lastPosition)
 {
     Wall w;
     w.x = 0;
     w.y = 0;
 
-    int pX = p.getX();
-    int pY = p.getY();
+    int pX = p->getX();
+    int pY = p->getY();
 
-    switch(p.getId())
+    switch(p->getId())
     {
         case 0:
             w.orientation = "V";
@@ -719,12 +724,12 @@ Wall getWallInGoalDirectionAccordingToMove(const Player& p, const Position& last
     return w;
 }
 
-Wall getWallInDirection(const Direction& d, const Player& p, const vector<Player> opponents, const Player& me, vector<Wall>& walls, int width, int height)
+Wall getWallInDirection(const Direction& d, const PlayerPtr p, const vector<PlayerPtr>& opponents, const PlayerPtr me, vector<Wall>& walls, int width, int height)
 {
     Wall w;
 
-    int pX = p.getX();
-    int pY = p.getY();
+    int pX = p->getX();
+    int pY = p->getY();
 
     switch(d)
     {
@@ -808,16 +813,16 @@ void initCorner(int playerCount)
     }
 }
 
-string corner(int playerCount, const Player& me, const vector<Player>& opponents, int wallCount, vector<Wall> walls, int w, int h)
+string corner(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& opponents, int wallCount, vector<Wall> walls, int w, int h)
 {
     string resultStr = "";
     
     if(myWallCount > 0 && playerIndex % playerCount < opponents.size())
     {
         int opponentIndex = playerIndex % playerCount;
-        Player opponent = opponents[opponentIndex];
+        PlayerPtr opponent = opponents[opponentIndex];
         Position lastPosition = lastPositions[opponentIndex];
-        if(opponent.getX() != lastPosition.x || opponent.getY() != lastPosition.y)
+        if(opponent->getX() != lastPosition.x || opponent->getY() != lastPosition.y)
         {
             cerr << "wallDesicion=" << wallDescision << endl; 
             Wall newWall;
@@ -870,9 +875,9 @@ string corner(int playerCount, const Player& me, const vector<Player>& opponents
     
     for(int i = 0; i<playerCount; i++)
     {
-    	Player p = opponents[i];
-        lastPositions[i].x = p.getX();
-        lastPositions[i].y = p.getY();
+    	PlayerPtr p = opponents[i];
+        lastPositions[i].x = p->getX();
+        lastPositions[i].y = p->getY();
     }
     
     return resultStr;
@@ -884,7 +889,7 @@ void initShortestDirection()
     numberMoves = 0;
 }
 
-string shortestDirection(int playerCount, const Player& me, const vector<Player>& opponents, int wallCount, vector<Wall> walls, int w, int h)
+string shortestDirection(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& opponents, int wallCount, vector<Wall> walls, int w, int h)
 {
     string resultStr = "";
     
@@ -958,13 +963,13 @@ int main()
     // game loop
     while (1) {
 
-        vector<Player> players  = listPlayers(playerCount);;
-        Player me = getMe(players, myId);
-        if(me.getId() == -1){
+        vector<PlayerPtr> players  = listPlayers(playerCount);;
+        PlayerPtr me= getMyPlayer(players, myId);
+        if(me == nullptr){
         	cerr << "Own player could not be found" << endl;
         	return -1;
         }
-        vector<Player> opponents = getOpponents(players, myId);
+        vector<PlayerPtr> opponents = getOpponents(players, myId);
 
         int wallCount; // number of walls on the board
         cin >> wallCount; cin.ignore();

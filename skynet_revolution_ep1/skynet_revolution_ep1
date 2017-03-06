@@ -1,2 +1,5 @@
 main.cpp
 Connection.cpp
+Node.cpp
+Solution1.cpp
+Solution2.cpp

@@ -13,7 +13,7 @@
 
 #include "Solution1.h"
 
-#include "Connection.h"
+#include "Link.h"
 
 using namespace std;
 
@@ -23,14 +23,14 @@ void Solution1::run(){
 	int E; // the number of exit gateways
 	cin >> N >> L >> E; cin.ignore();
 
-	vector<Connection> connections;
+	vector<Link> links;
 	for (int i = 0; i < L; i++) {
 		int N1; // N1 and N2 defines a link between these nodes
 		int N2;
 		cin >> N1 >> N2; cin.ignore();
 
-		Connection c(N1, N2);
-		connections.push_back(c);
+		Link l(N1, N2);
+		links.push_back(l);
 	}
 
 	vector<int> gateways;
@@ -47,29 +47,31 @@ void Solution1::run(){
 		cin >> SI; cin.ignore();
 		//cerr << "agent: " << SI <<  endl;
 
-		vector<int> outConnections;
+		vector<int> adjacentNodes;
 
-		for(Connection c:connections)
+		// find adjacent nodes to SI
+		for(Link l:links)
 		{
-			if(c.getN1() == SI)
+			if(l.getN1() == SI)
 			{
-				outConnections.push_back(c.getN2());
+				adjacentNodes.push_back(l.getN2());
 			}
-			else if(c.getN2() == SI)
+			else if(l.getN2() == SI)
 			{
-				outConnections.push_back(c.getN1());
+				adjacentNodes.push_back(l.getN1());
 			}
 
 		}
 
-		int result = outConnections[0];
-		for(int c: outConnections)
+		// if one of the adjacent node is a gateway chose this, else chose first adjacent node
+		int result = adjacentNodes[0];
+		for(int n: adjacentNodes)
 		{
 			for(int g: gateways)
 			{
-				if(c == g)
+				if(n == g)
 				{
-					result = c;
+					result = n;
 				}
 			}
 		}

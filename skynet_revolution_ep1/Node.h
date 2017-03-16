@@ -8,6 +8,10 @@
 #ifndef NODE_H_
 #define NODE_H_
 
+#include <vector>
+#include <algorithm>
+#include <sstream>
+
 enum class State{
 	UNDESCOVERED,
 	DESCOVERED,
@@ -19,8 +23,13 @@ class Node {
 	State state;
 	int predecessor;
 	int distance;
+	std::vector<int> adjacentNodes;
+
+	const static State defaultState = State::UNDESCOVERED;
+	const static int defaultPredecessor = -1;
+	const static int defaultDistance = -1;
 public:
-	Node(int n) : number(n), state(State::UNDESCOVERED), predecessor(-1), distance(-1){}
+	Node(int n) : number(n), state(defaultState), predecessor(defaultPredecessor), distance(defaultDistance){}
 	virtual ~Node();
 
 	int getNumber() const;
@@ -30,6 +39,14 @@ public:
 	void setPredecessor(int predecessor);
 	int getDistance() const;
 	void setDistance(int distance);
+	const std::vector<int>& getAdjacentNodes() const;
+	void addAdjacentNode(int nodeNumber);
+	void removeAdjacentNode(int nodeNumber);
+	void reset();
 };
+
+std::ostream& operator<<(std::ostream &strm, const Node &node);
+
+
 
 #endif /* NODE_H_ */

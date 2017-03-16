@@ -1,5 +1,5 @@
 main.cpp
-Connection.cpp
+Link.cpp
 Node.cpp
 Solution1.cpp
 Solution2.cpp

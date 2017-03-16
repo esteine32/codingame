@@ -1,3 +1,3 @@
-main.o: ../main.cpp ../Elevator.h
+Main.o: ../Main.cpp ../Elevator.h
 
 ../Elevator.h:

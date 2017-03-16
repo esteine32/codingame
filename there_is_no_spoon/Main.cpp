@@ -15,7 +15,7 @@ int main()
     int height; // the number of cells on the Y axis
     cin >> height; cin.ignore();
     
-    bool cells [width][height];
+    bool cells [width][height]; //2-dim array over grid. Cell is true if there is a node in the cell, otherwise false
     for (int i = 0; i < height; i++) {
         string line; // width characters, each either 0 or .
         getline(cin, line);
@@ -30,12 +30,12 @@ int main()
     {
         for(int j=0; j<width; j++)
         {
-            if(cells[j][i])
+            if(cells[j][i]) //cell contains node
             {
-
                 int x1, y1, x2, y2;
                 x1 = y1 = x2 = y2 = -1;
-                
+
+                // find right neighbor node to the node
                 for(int k = j+1; k<width; k++)
                 {
                     if(cells[k][i])
@@ -46,6 +46,7 @@ int main()
                     }
                 }
                 
+                // find bottom neighbor node to the node
                 for(int k = i+1; k<height; k++)
                 {
                     if(cells[j][k])

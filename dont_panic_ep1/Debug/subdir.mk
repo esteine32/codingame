@@ -5,15 +5,15 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../Elevator.cpp \
-../main.cpp 
+../Main.cpp 
 
 OBJS += \
 ./Elevator.o \
-./main.o 
+./Main.o 
 
 CPP_DEPS += \
 ./Elevator.d \
-./main.d 
+./Main.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

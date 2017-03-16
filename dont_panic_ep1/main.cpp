@@ -9,28 +9,31 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 #include "Elevator.h"
 
 using namespace std;
+
+typedef shared_ptr<Elevator> ElevatorPtr;
 
 bool wrongDirection(int clonePos, int targetPos, string direction)
 {
     return (clonePos > targetPos && direction.compare("RIGHT")==0) || (clonePos < targetPos && direction.compare("LEFT")==0);
 }
 
-int findElevatorPosOnFloor(int floor, vector<Elevator>& elevators)
+int findElevatorPosOnFloor(int floor, vector<ElevatorPtr> elevators)
 {
-    Elevator e = elevators[0];
+    ElevatorPtr e = elevators[0];
     for(int i = 1; i<elevators.size(); ++i)
     {
-        if(elevators[i].getFloor() == floor)
+        if(elevators[i]->getFloor() == floor)
         {
             e = elevators[i];
             break;
         }
     }
-    return e.getPos();
+    return e->getPos();
 }
 
 int main()
@@ -44,16 +47,16 @@ int main()
     int nbAdditionalElevators; // ignore (always zero)
     int nbElevators; // number of elevators
     cin >> nbFloors >> width >> nbRounds >> exitFloor >> exitPos >> nbTotalClones >> nbAdditionalElevators >> nbElevators; cin.ignore();
-    cerr << "nbFloors=" << nbFloors << ", width=" << width << ", nbRounds="<< nbRounds << ", exitFloor=" << exitFloor << ", exitPos=" << exitPos << ", nbTotalClones=" << nbTotalClones << ", nbAdditionalElevators=" << nbAdditionalElevators << ", nbElevators="<< nbElevators<<endl;
+    //cerr << "nbFloors=" << nbFloors << ", width=" << width << ", nbRounds="<< nbRounds << ", exitFloor=" << exitFloor << ", exitPos=" << exitPos << ", nbTotalClones=" << nbTotalClones << ", nbAdditionalElevators=" << nbAdditionalElevators << ", nbElevators="<< nbElevators<<endl;
 
-    vector<Elevator> elevators;
+    vector<ElevatorPtr> elevators;
     for (int i = 0; i < nbElevators; i++) {
         int elevatorFloor; // floor on which this elevator is found
         int elevatorPos; // position of the elevator on its floor
         cin >> elevatorFloor >> elevatorPos; cin.ignore();
-        cerr << "elevetor number=" << i << ": elevatorFloor="<<elevatorFloor << ", elevatorPos=" << elevatorPos << endl;
+        //cerr << "elevetor number=" << i << ": elevatorFloor="<<elevatorFloor << ", elevatorPos=" << elevatorPos << endl;
 
-        Elevator e(elevatorFloor, elevatorPos);
+        ElevatorPtr e(new Elevator(elevatorFloor, elevatorPos));
         elevators.push_back(e);
     }
 
@@ -64,7 +67,7 @@ int main()
         int clonePos; // position of the leading clone on its floor
         string direction; // direction of the leading clone: LEFT or RIGHT
         cin >> cloneFloor >> clonePos >> direction; cin.ignore();
-        cerr << "cloneFloor=" << cloneFloor << ", clonePos="<< clonePos << ", direction="<< direction << endl;
+        //cerr << "cloneFloor=" << cloneFloor << ", clonePos="<< clonePos << ", direction="<< direction << endl;
 
 
         string result = "WAIT";

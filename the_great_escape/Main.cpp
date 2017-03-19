@@ -1,142 +1,31 @@
-//This file was created with Single-C-File
-//Single-C-File was developed by Adrian Dawid.
 #include <iostream>
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <memory>
-/*
- * Player.h
- *
- *  Created on: 26 Feb 2017
- *      Author: sbl
- */
-#ifndef PLAYER_H_
-#define PLAYER_H_
-class Player {
-private:
-	int id;
-	int x;
-	int y;
-	int noOfwalls;
-public:
-	Player() : id(-1), x(-1), y(-1), noOfwalls(-1){}
-	Player(int id, int x, int y, int noOfwalls) : id(id), x(x), y(y), noOfwalls(noOfwalls){}
-	virtual ~Player();
-	int getId() const;
-	int getX() const;
-	int getY() const;
-	int getNoOfwalls() const;
-};
-#endif /* PLAYER_H_ */
-/*
- * Wall.h
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-#ifndef WALL_H_
-#define WALL_H_
-class Wall {
-    int x;
-    int y;
-    std::string orientation;
-public:
-	Wall(int x, int y, std::string o) : x(x), y(y), orientation(0){}
-	virtual ~Wall();
-	std::string getOrientation() const;
-	int getX() const;
-	int getY() const;
-};
-#endif /* WALL_H_ */
-/*
- * AStarResult.h
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-#ifndef ASTARRESULT_H_
-#define ASTARRESULT_H_
-/*
- * Direction.h
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-#ifndef DIRECTION_H_
-#define DIRECTION_H_
-enum class Direction
-{
-    Right, Left, Up, Down, None
-};
-#endif /* DIRECTION_H_ */
-class AStarResult {
-    Direction direction;
-    int length;
-public:
-	AStarResult(Direction d, int l) : direction(d), length(l){}
-	virtual ~AStarResult();
-	Direction getDirection() const;
-	int getLength() const;
-};
-#endif /* ASTARRESULT_H_ */
-/*
- * Node.h
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-#ifndef NODE_H_
-#define NODE_H_
-class Node {
-    int x;
-    int y;
-    Direction connection;
-    int costSoFar;
-    int estimatedTotalCost;
-public:
-	Node(int x, int y, Direction c, int csf) : x(x), y(y), connection(c), costSoFar(csf), estimatedTotalCost(0) {}
-	virtual ~Node();
-	int getX() const;
-	int getY() const;
-	Direction getConnection() const;
-	int getCostSoFar() const;
-	void setConnection(Direction connection);
-	void setCostSoFar(int costSoFar);
-	int getEstimatedTotalCost() const;
-	void setEstimatedTotalCost(int estimatedTotalCost);
-};
-#endif /* NODE_H_ */
-/*
- * Position.h
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-#ifndef POSITION_H_
-#define POSITION_H_
-class Position {
-    int x;
-    int y;
-public:
-	Position() : x(0), y(0){}
-	virtual ~Position();
-	int getX() const;
-	void setX(int x);
-	int getY() const;
-	void setY(int y);
-};
-#endif /* POSITION_H_ */
+
+#include "Player.h"
+#include "Wall.h"
+#include "AStarResult.h"
+#include "Direction.h"
+#include "Node.h"
+#include "Position.h"
+
 using namespace std;
 typedef shared_ptr<Player> PlayerPtr;
 typedef shared_ptr<Wall> WallPtr;
 typedef shared_ptr<AStarResult> AStarResultPtr;
 typedef shared_ptr<Node> NodePtr;
 typedef shared_ptr<Position> PositionPtr;
+
+
 /**
  * Auto-generated code below aims at helping you parse
  * the standard input according to the problem statement.
  **/
+
+
+
 vector<PlayerPtr> listPlayers(int playerCount)
 {
     vector<PlayerPtr> players;
@@ -145,11 +34,14 @@ vector<PlayerPtr> listPlayers(int playerCount)
         int y; // y-coordinate of the player
         int wallsLeft; // number of walls available for the player
         cin >> x >> y >> wallsLeft; cin.ignore();
+
         PlayerPtr p(new Player(i, x, y, wallsLeft));
         players.push_back(p);
     }
+
     return players;
 };
+
 PlayerPtr getMyPlayer(const vector<PlayerPtr>& players, int myId){
 	for(int i = 0; i<players.size(); ++i){
 		PlayerPtr player = players[i];
@@ -159,15 +51,19 @@ PlayerPtr getMyPlayer(const vector<PlayerPtr>& players, int myId){
 	}
 	return nullptr;
 }
+
 vector<PlayerPtr> getOpponents(const vector<PlayerPtr>& players, int myId){
     vector<PlayerPtr> opponents;
+
 	for(PlayerPtr player : players){
 		if(player->getId() != myId){
 			opponents.push_back(player);
 		}
 	}
+
 	return opponents;
 }
+
 void listWalls(int wallCount, vector<WallPtr> walls)
 {
     walls.reserve(wallCount);
@@ -178,8 +74,10 @@ void listWalls(int wallCount, vector<WallPtr> walls)
         cin >> wallX >> wallY >> wallOrientation; cin.ignore();
         walls.push_back(WallPtr(new Wall(wallX, wallY, wallOrientation)));
         
+
     }
 }
+
 string getMoveStr(Direction d)
 {
     switch(d)
@@ -200,6 +98,7 @@ string getMoveStr(Direction d)
     
     return "FAIL";
 }
+
 bool isRightPossible(NodePtr n, const vector<WallPtr>& walls, int width)
 {
     bool possible = n->getX()< width-1;
@@ -214,9 +113,11 @@ bool isRightPossible(NodePtr n, const vector<WallPtr>& walls, int width)
     
     return possible;
 }
+
 bool isLeftPossible(NodePtr n, const vector<WallPtr>& walls, int width)
 {
     bool possible = n->getX() > 0;
+
     if(possible)
     {
         for(WallPtr w:walls)
@@ -227,9 +128,11 @@ bool isLeftPossible(NodePtr n, const vector<WallPtr>& walls, int width)
     
     return possible;
 }
+
 bool isDownPossible(NodePtr n, const vector<WallPtr>& walls, int height)
 {
     bool possible = n->getY() < height-1;
+
     if(possible)
     {
         for(WallPtr w:walls)
@@ -240,9 +143,11 @@ bool isDownPossible(NodePtr n, const vector<WallPtr>& walls, int height)
     
     return possible;
 }
+
 bool isUpPossible(NodePtr n, const vector<WallPtr>& walls, int height)
 {
     bool possible = n->getY() > 0;
+
     if(possible)
     {
         for(WallPtr w:walls)
@@ -253,6 +158,7 @@ bool isUpPossible(NodePtr n, const vector<WallPtr>& walls, int height)
     
     return possible;
 }
+
 int estimatedCost(PlayerPtr p, NodePtr n, int width, int height)
 {
     switch(p->getId())
@@ -264,8 +170,10 @@ int estimatedCost(PlayerPtr p, NodePtr n, int width, int height)
         case 2:
             return (height - 1) - n->getY();
     }
+
     return -1;
 }
+
 int getIndexOfSmallestNode(const vector<NodePtr>& v)
 {
     int index = 0;
@@ -280,6 +188,7 @@ int getIndexOfSmallestNode(const vector<NodePtr>& v)
     }
     return index;
 }
+
 int getIndexOfNode(const vector<NodePtr>& v, NodePtr n)
 {
     for(int i = 0; i<v.size(); ++i)
@@ -292,8 +201,10 @@ int getIndexOfNode(const vector<NodePtr>& v, NodePtr n)
     
     return -1;
 }
+
 bool isGoalReached(int id, NodePtr n, int width, int height)
 {
+
     switch(id)
     {
         case 0:
@@ -303,8 +214,11 @@ bool isGoalReached(int id, NodePtr n, int width, int height)
         case 2:
             return n->getY() == height -1 ;
     }
+
     return -1;
 }
+
+
 vector<NodePtr> getConnections(NodePtr n, const vector<WallPtr>& walls, int width, int height)
 {
     vector<NodePtr> connections;
@@ -335,6 +249,7 @@ vector<NodePtr> getConnections(NodePtr n, const vector<WallPtr>& walls, int widt
     
     return connections;
 }
+
 NodePtr getFromNode(const vector<NodePtr>& closed, NodePtr n)
 {
     //cerr << getMove(n.connection) << endl;
@@ -368,6 +283,7 @@ NodePtr getFromNode(const vector<NodePtr>& closed, NodePtr n)
     
     return n;
 }
+
 Direction reverseDirection(Direction d)
 {
     switch(d)
@@ -388,12 +304,17 @@ Direction reverseDirection(Direction d)
     
     return Direction::None;
 }
+
+
+
 AStarResultPtr aStar(const PlayerPtr p, const vector<WallPtr>& walls, int width, int height)
 {
     vector<NodePtr> open;
     vector<NodePtr> closed;
+
     NodePtr start(new Node(p->getX(), p->getY(), Direction::None, 0));
     start->setEstimatedTotalCost(estimatedCost(p, start, width, height));
+
     NodePtr current;
     NodePtr resultNode;
     
@@ -471,6 +392,7 @@ AStarResultPtr aStar(const PlayerPtr p, const vector<WallPtr>& walls, int width,
     }
     else
     {
+
         while(current->getX() != start->getX() || current->getY() !=start->getY())
         {
             //cerr << "find path: x=" << current.x << " y=" << current.y << " val=" << current.estimatedTotalCost << endl; 
@@ -483,8 +405,10 @@ AStarResultPtr aStar(const PlayerPtr p, const vector<WallPtr>& walls, int width,
     Direction direction = reverseDirection(resultNode->getConnection());
     return AStarResultPtr(new AStarResult(direction, length));
 }
+
 bool isPlacingOnOtherWall(const vector<WallPtr>& walls, const WallPtr& newWall)
 {
+
     for(WallPtr w: walls)
     {
         bool sameDirectionFail = false;
@@ -506,6 +430,7 @@ bool isPlacingOnOtherWall(const vector<WallPtr>& walls, const WallPtr& newWall)
     }
     return false;
 }
+
 bool wallHasValidCoords(const WallPtr& w)
 {
     if(w->getOrientation().compare("H") == 0 && w->getX() > -1 && w->getX() < 8 && w->getY() > 0 && w->getY() < 9)
@@ -520,6 +445,9 @@ bool wallHasValidCoords(const WallPtr& w)
     
     return false;
 }
+
+
+
 bool canPlaceWall(vector<WallPtr>& walls, const WallPtr& newWall, const vector<PlayerPtr>& opponents, const PlayerPtr me, int width, int height)
 {
     if(!wallHasValidCoords(newWall))
@@ -533,6 +461,7 @@ bool canPlaceWall(vector<WallPtr>& walls, const WallPtr& newWall, const vector<P
         //cerr << "isPlacingOnOtherWall" << endl;
         return false;
     }
+
     walls.push_back(newWall);
     for(PlayerPtr p: opponents)
     {
@@ -557,6 +486,7 @@ bool canPlaceWall(vector<WallPtr>& walls, const WallPtr& newWall, const vector<P
     walls.pop_back();
     return true;
 }
+
 string getWallStr(WallPtr w)
 {
     return to_string(w->getX()) + " " + to_string(w->getY()) + " " + w->getOrientation();
@@ -566,6 +496,7 @@ WallPtr getWallInMovingDirection(const PlayerPtr p, PositionPtr lastPosition)
     int pId = p->getId();
     int pX = p->getX();
     int pY = p->getY();
+
     int x;
     int y;
     string orientation;
@@ -648,13 +579,17 @@ WallPtr getWallInMovingDirection(const PlayerPtr p, PositionPtr lastPosition)
     return WallPtr(new Wall(x, y, orientation));
     
 }
+
 WallPtr getWallInGoalDirection(const PlayerPtr p)
 {
+
     int pX = p->getX();
     int pY = p->getY();
+
     int x;
     int y;
     string orientation;
+
     switch(p->getId())
     {
         case 0:
@@ -677,13 +612,16 @@ WallPtr getWallInGoalDirection(const PlayerPtr p)
     //cerr << p.id << " " << w.x << " " << w.y << " " << w.orientation << endl;
     return WallPtr(new Wall(x, y, orientation));
 }
+
 WallPtr getWallInGoalDirectionAccordingToMove(const PlayerPtr p, PositionPtr lastPosition)
 {
     int pX = p->getX();
     int pY = p->getY();
+
     int x = 0;
     int y = 0;
     string orientation;
+
     switch(p->getId())
     {
         case 0:
@@ -732,14 +670,20 @@ WallPtr getWallInGoalDirectionAccordingToMove(const PlayerPtr p, PositionPtr las
     
     return WallPtr(new Wall(x, y, orientation));
 }
+
 WallPtr getWallInDirection(const Direction& d, const PlayerPtr p, const vector<PlayerPtr>& opponents, const PlayerPtr me, vector<WallPtr>& walls, int width, int height)
 {
+
     int pX = p->getX();
     int pY = p->getY();
+
     string orientation;
     int x;
     int y;
+
     WallPtr w;
+
+
     switch(d)
     {
         case Direction::Up:
@@ -764,6 +708,7 @@ WallPtr getWallInDirection(const Direction& d, const PlayerPtr p, const vector<P
             break;
     }
     w = WallPtr(new Wall(x, y, orientation));
+
     if(canPlaceWall(walls, w, opponents, me, width, height))
         return w;
             
@@ -790,28 +735,40 @@ WallPtr getWallInDirection(const Direction& d, const PlayerPtr p, const vector<P
             orientation = "V";
             break;
     }
+
     w = WallPtr(new Wall(x, y, orientation));
+
     if(canPlaceWall(walls, w, opponents, me, width, height))
         return w;
             
     w = WallPtr(new Wall(0, 0, orientation));
+
     return w;
 }
+
+
+
+//**********************************************attempts**********************************************//
+
+//CORNER
 int myWallCount;
 int playerIndex;
 int wallDescision;
 int numberMoves;
 vector<PositionPtr> lastPositions;
+
 void initCorner(int playerCount)
 {
     playerIndex = playerCount == 2 ? 1 : 2;
     wallDescision = 1;
     numberMoves = 0;
+
     for(int i = 0; i<playerCount; i++)
     {
         lastPositions.push_back(PositionPtr(new Position()));
     }
 }
+
 string corner(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& opponents, int wallCount, vector<WallPtr> walls, int w, int h)
 {
     string resultStr = "";
@@ -838,6 +795,7 @@ string corner(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& oppo
                 newWall = getWallInMovingDirection(opponent, lastPosition);
             }
             wallDescision++;
+
             if(canPlaceWall(walls, newWall, opponents, me, w, h))
             {
                 resultStr = getWallStr(newWall);
@@ -848,6 +806,7 @@ string corner(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& oppo
             } 
         }
     }
+
     if(resultStr.compare("") == 0)
     {
         AStarResultPtr result = aStar(me, walls, w, h);
@@ -865,6 +824,7 @@ string corner(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& oppo
             
     }
     
+
     //string move = moveStr;
     // Write an action using cout. DON'T FORGET THE "<< endl"
     // To debug: cerr << "Debug messages..." << endl;
@@ -878,10 +838,13 @@ string corner(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& oppo
     
     return resultStr;
 }
+
+//SHORTEST DIRECTION
 void initShortestDirection()
 {
     numberMoves = 0;
 }
+
 string shortestDirection(int playerCount, const PlayerPtr me, const vector<PlayerPtr>& opponents, int wallCount, vector<WallPtr> walls, int w, int h)
 {
     string resultStr = "";
@@ -909,6 +872,7 @@ string shortestDirection(int playerCount, const PlayerPtr me, const vector<Playe
         if(leaderIndex != 2)
         {
             WallPtr newWall = getWallInDirection(moves[leaderIndex]->getDirection(), opponents[leaderIndex], opponents, me, walls, w, h);
+
             if(newWall->getX() != 0 || newWall->getY() != 0)
             {
                 walls.push_back(newWall);
@@ -922,18 +886,23 @@ string shortestDirection(int playerCount, const PlayerPtr me, const vector<Playe
                     myWallCount--;
                 }
                 
+
             }
         }
     }
     
     if(resultStr.compare("") == 0)
     {
+
         resultStr = getMoveStr(myMove->getDirection());
         numberMoves++;
+
     }
     
     return resultStr;
 }
+
+
 int main()
 {
     int w; // width of the board
@@ -949,6 +918,7 @@ int main()
     
     // game loop
     while (1) {
+
         vector<PlayerPtr> players  = listPlayers(playerCount);;
         PlayerPtr me= getMyPlayer(players, myId);
         if(me == nullptr){
@@ -956,129 +926,17 @@ int main()
         	return -1;
         }
         vector<PlayerPtr> opponents = getOpponents(players, myId);
+
         int wallCount; // number of walls on the board
         cin >> wallCount; cin.ignore();
+
         vector<WallPtr> walls;
         listWalls(wallCount, walls);
+
+
         string resultStr = shortestDirection(playerCount, me, opponents, wallCount, walls, w, h); 
+
         cout << resultStr << endl; // action: LEFT, RIGHT, UP, DOWN or "putX putY putOrientation" to place a wall
     }
 }
-/*
- * Player.cpp
- *
- *  Created on: 26 Feb 2017
- *      Author: sbl
- */
-int Player::getId() const {
-	return id;
-}
-int Player::getX() const {
-	return x;
-}
-int Player::getY() const {
-	return y;
-}
-Player::~Player() {
-	// TODO Auto-generated destructor stub
-}
-/*
- * Wall.cpp
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-std::string Wall::getOrientation() const {
-	return orientation;
-}
-int Wall::getX() const {
-	return x;
-}
-int Wall::getY() const {
-	return y;
-}
-Wall::~Wall() {
-	// TODO Auto-generated destructor stub
-}
-/*
- * Node.cpp
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-Node::~Node() {
-	// TODO Auto-generated destructor stub
-}
-int Node::getX() const {
-	return x;
-}
-int Node::getY() const {
-	return y;
-}
-Direction Node::getConnection() const {
-	return connection;
-}
-void Node::setConnection(Direction connection) {
-	this->connection = connection;
-}
-int Node::getCostSoFar() const {
-	return costSoFar;
-}
-void Node::setCostSoFar(int costSoFar) {
-	this->costSoFar = costSoFar;
-}
-int Node::getEstimatedTotalCost() const {
-	return estimatedTotalCost;
-}
-void Node::setEstimatedTotalCost(int estimatedTotalCost) {
-	this->estimatedTotalCost = estimatedTotalCost;
-}
-/*
- * Direction.h
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-#ifndef DIRECTION_H_
-#define DIRECTION_H_
-enum class Direction
-{
-    Right, Left, Up, Down, None
-};
-#endif /* DIRECTION_H_ */
-/*
- * AStarResult.cpp
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-Direction AStarResult::getDirection() const {
-	return direction;
-}
-int AStarResult::getLength() const {
-	return length;
-}
-AStarResult::~AStarResult() {
-	// TODO Auto-generated destructor stub
-}
-/*
- * Position.cpp
- *
- *  Created on: 19 Mar 2017
- *      Author: sbl
- */
-Position::~Position() {
-	// TODO Auto-generated destructor stub
-}
-int Position::getX() const {
-	return x;
-}
-void Position::setX(int x) {
-	this->x = x;
-}
-int Position::getY() const {
-	return y;
-}
-void Position::setY(int y) {
-	this->y = y;
-}
+

@@ -1,2 +1,7 @@
-main.cpp
+Main.cpp
 Player.cpp
+Wall.cpp
+Node.cpp
+Direction.h
+AStarResult.cpp
+Position.cpp

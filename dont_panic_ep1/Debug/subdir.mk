@@ -4,15 +4,12 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../Elevator.cpp \
 ../Main.cpp 
 
 OBJS += \
-./Elevator.o \
 ./Main.o 
 
 CPP_DEPS += \
-./Elevator.d \
 ./Main.d 
 
 

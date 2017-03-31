@@ -8,6 +8,8 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
+#include <memory>
+
 class Player {
 private:
 	int id;
@@ -29,5 +31,7 @@ public:
 	int getNoOfwalls() const;
 
 };
+
+typedef std::shared_ptr<Player> PlayerPtr;
 
 #endif /* PLAYER_H_ */

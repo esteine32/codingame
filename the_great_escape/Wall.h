@@ -16,11 +16,13 @@ class Wall {
     std::string orientation;
 
 public:
-	Wall(int x, int y, std::string o) : x(x), y(y), orientation(0){}
+	Wall(int x, int y, std::string o) : x(x), y(y), orientation(o){}
 	virtual ~Wall();
 	std::string getOrientation() const;
 	int getX() const;
 	int getY() const;
 };
+
+typedef std::shared_ptr<Wall> WallPtr;
 
 #endif /* WALL_H_ */

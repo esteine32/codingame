@@ -8,6 +8,9 @@
 #ifndef NODE_H_
 #define NODE_H_
 
+#include <memory>
+#include <iostream>
+
 #include "Direction.h"
 
 class Node {
@@ -28,5 +31,9 @@ public:
 	int getEstimatedTotalCost() const;
 	void setEstimatedTotalCost(int estimatedTotalCost);
 };
+
+typedef std::shared_ptr<Node> NodePtr;
+
+std::ostream& operator<<(std::ostream &strm, const Node &node);
 
 #endif /* NODE_H_ */

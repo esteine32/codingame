@@ -3,5 +3,5 @@ Player.cpp
 Wall.cpp
 Node.cpp
 Direction.h
-AStarResult.cpp
+AStar.cpp
 Position.cpp

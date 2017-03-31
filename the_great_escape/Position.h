@@ -8,6 +8,8 @@
 #ifndef POSITION_H_
 #define POSITION_H_
 
+#include <memory>
+
 class Position {
     int x;
     int y;
@@ -19,5 +21,7 @@ public:
 	int getY() const;
 	void setY(int y);
 };
+
+typedef std::shared_ptr<Position> PositionPtr;
 
 #endif /* POSITION_H_ */

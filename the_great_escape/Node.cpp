@@ -45,6 +45,10 @@ void Node::setEstimatedTotalCost(int estimatedTotalCost) {
 	this->estimatedTotalCost = estimatedTotalCost;
 }
 
+std::ostream& operator<<(std::ostream &strm, const Node &node) {
+  return strm << "Node[x="<< node.getX() << ", y=" << node.getY() << ", connection=" << static_cast<std::underlying_type<Direction>::type>(node.getConnection()) << ", costSoFar=" << node.getCostSoFar() << ", estimatedTotalCost=" << node.getEstimatedTotalCost() << "]";
+}
+
 
 
 

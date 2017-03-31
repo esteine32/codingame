@@ -104,7 +104,7 @@ void Solution2::run(){
 			}
 		}
 
-		// following route from closest gateway to SI, find link connected to SI
+		//  find link connected to SI by following route from closest gateway to SI,
 		NodePtr n1(closestGateway);
 		NodePtr n2(nodes[n1->getPredecessor()]);
 		while(n2->getPredecessor() != -1){

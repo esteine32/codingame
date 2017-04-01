@@ -9,6 +9,12 @@
 #define WALL_H_
 
 #include <string>
+#include <vector>
+
+#include "Direction.h"
+
+class Wall;
+typedef std::shared_ptr<Wall> WallPtr;
 
 class Wall {
     int x;
@@ -21,8 +27,11 @@ public:
 	std::string getOrientation() const;
 	int getX() const;
 	int getY() const;
+	bool hasValidCoords();
+	bool isPlacingOnOtherWall(const std::vector<WallPtr>& walls);
+	static std::vector<WallPtr> getWallsInDirection(int x, int y, const Direction& d);
 };
 
-typedef std::shared_ptr<Wall> WallPtr;
+
 
 #endif /* WALL_H_ */

@@ -51,6 +51,8 @@ typedef std::shared_ptr<Player> PlayerPtr;
  */
 #ifndef WALL_H_
 #define WALL_H_
+class Wall;
+typedef std::shared_ptr<Wall> WallPtr;
 class Wall {
     int x;
     int y;
@@ -61,8 +63,10 @@ public:
 	std::string getOrientation() const;
 	int getX() const;
 	int getY() const;
+	bool hasValidCoords();
+	bool isPlacingOnOtherWall(const std::vector<WallPtr>& walls);
+	static std::vector<WallPtr> getWallsInDirection(int x, int y, const Direction& d);
 };
-typedef std::shared_ptr<Wall> WallPtr;
 #endif /* WALL_H_ */
 /*
  * Node.h
@@ -185,7 +189,7 @@ vector<PlayerPtr> getOpponents(const vector<PlayerPtr>& players, int myId){
 	}
 	return opponents;
 }
-vector<WallPtr> listWalls()
+vector<WallPtr> getWalls()
 {
     int wallCount; // number of walls on the board
     cin >> wallCount; cin.ignore();
@@ -220,156 +224,14 @@ string getMoveStr(Direction d)
     
     return "FAIL";
 }
-bool isPlacingOnOtherWall(const vector<WallPtr>& walls, const WallPtr& newWall)
-{
-    for(WallPtr w: walls)
-    {
-        bool sameDirectionFail = false;
-        bool otherDirectionFail = false;
-        if(newWall->getOrientation().compare("H") == 0){
-            sameDirectionFail = w->getOrientation().compare("H") == 0 && newWall->getY() == w->getY() && (newWall->getX() == w->getX()-1 || newWall->getX() == w->getX() || newWall->getX() == w->getX() + 1);
-            otherDirectionFail =w->getOrientation().compare("V") == 0 && newWall->getY() == w->getY()+1 && newWall->getX() == w->getX()-1;
-            if(sameDirectionFail || otherDirectionFail)
-                return true;
-        }
-        else
-        {
-            sameDirectionFail = w->getOrientation().compare("V") == 0 && newWall->getX() == w->getX() && (newWall->getY() == w->getY()-1 || newWall->getY() == w->getY() || newWall->getY() == w->getY() + 1);
-            otherDirectionFail =w->getOrientation().compare("H") == 0 && newWall->getX() == w->getX()+1 && newWall->getY() == w->getY()-1;
-            if(sameDirectionFail || otherDirectionFail)
-                return true;
-        }
-        //cerr << "isPlacingOnOtherWall: " << w.x << " " << w.y << " " << w.orientation  << endl;
-    }
-    return false;
-}
-bool wallHasValidCoords(const WallPtr& w)
-{
-    if(w->getOrientation().compare("H") == 0 && w->getX() > -1 && w->getX() < 8 && w->getY() > 0 && w->getY() < 9)
-    {
-        return true;
-    }
-    
-    if(w->getOrientation().compare("V") == 0 && w->getX() > 0 && w->getX() < 9 && w->getY() > -1 && w->getY() < 8)
-    {
-        return true;
-    }
-    
-    return false;
-}
-bool canPlaceWall(vector<WallPtr>& walls, const WallPtr& newWall, const vector<PlayerPtr>& opponents, const PlayerPtr me, int width, int height)
-{
-    if(!wallHasValidCoords(newWall))
-    {
-        //cerr << "notValidCoords" << endl;
-        return false;    
-    }
-    
-    if(isPlacingOnOtherWall(walls, newWall))
-    {
-        //cerr << "isPlacingOnOtherWall" << endl;
-        return false;
-    }
-    walls.push_back(newWall);
-    for(PlayerPtr p: opponents)
-    {
-        AStarPtr a(new AStar(p, walls, width, height));
-        if(a->getDirection() == Direction::None)
-        {
-            //cerr << "NoWay" << endl;
-            walls.pop_back();
-            return false;
-        }
-    }
-    
-    AStarPtr a(new AStar(me, walls, width, height));
-    if(a->getDirection() == Direction::None)
-    {
-        //cerr << "NoWay" << endl;
-        walls.pop_back();
-        return false;
-    }   
-    
-    //cerr << "go with the wall" << endl;
-    walls.pop_back();
-    return true;
-}
 string getWallStr(WallPtr w)
 {
     return to_string(w->getX()) + " " + to_string(w->getY()) + " " + w->getOrientation();
 }
-WallPtr getWallInDirection(const Direction& d, const PlayerPtr p, const vector<PlayerPtr>& opponents, const PlayerPtr me, vector<WallPtr>& walls, int width, int height)
-{
-    int pX = p->getX();
-    int pY = p->getY();
-    string orientation = "";
-    int x;
-    int y;
-    WallPtr w;
-    switch(d)
-    {
-        case Direction::Up:
-            x = pX;
-            y = pY;
-            orientation = "H";
-            break;
-        case Direction::Down:
-            x = pX;
-            y = pY+1;
-            orientation = "H";
-            break;
-        case Direction::Left:
-            x = pX;
-            y = pY;
-            orientation = "V";
-            break;
-        case Direction::Right:
-            x = pX+1;
-            y = pY;
-            orientation = "V";
-            break;
-    }
-    w = WallPtr(new Wall(x, y, orientation));
-    if(canPlaceWall(walls, w, opponents, me, width, height))
-        return w;
-            
-    switch(d)
-    {
-        case Direction::Up:
-            x = pX-1;
-            y = pY;
-            orientation = "H";
-            break;
-        case Direction::Down:
-            x = pX-1;
-            y = pY+1;
-            orientation = "H";
-            break;
-        case Direction::Left:
-            x = pX;
-            y = pY-1;
-            orientation = "V";
-            break;
-        case Direction::Right:
-            x = pX+1;
-            y = pY-1;
-            orientation = "V";
-            break;
-    }
-    w = WallPtr(new Wall(x, y, orientation));
-    if(canPlaceWall(walls, w, opponents, me, width, height))
-        return w;
-            
-    w = WallPtr(new Wall(0, 0, orientation));
-    return w;
-}
 int myWallCount;
-int playerIndex;
-int wallDescision;
-vector<PositionPtr> lastPositions;
-string shortestDirection(const PlayerPtr player, const vector<PlayerPtr>& opponents, vector<WallPtr> walls, int w, int h)
+string shortestDirection(const PlayerPtr ownPlayer, const vector<PlayerPtr>& opponents, vector<WallPtr> walls, int w, int h)
 {
-    AStarPtr ownMove(new AStar(player, walls, w, h));
+    AStarPtr ownMove(new AStar(ownPlayer, walls, w, h));
     WallPtr wallToPlace = nullptr;
     
     //check whether wall should be placed
@@ -386,20 +248,24 @@ string shortestDirection(const PlayerPtr player, const vector<PlayerPtr>& oppone
         	AStarPtr opponentMove = moves[i];
         	if(opponentMove->getLength() < ownMove->getLength()){
             	int diffLength = ownMove->getLength() - opponentMove->getLength();
-                WallPtr newWall = getWallInDirection(opponentMove->getDirection(), opponent, opponents, player, walls, w, h);
-                if(newWall->getX() != 0 || newWall->getY() != 0)
-                {
-                    walls.push_back(newWall);
-                    AStarPtr ownNewMove(new AStar(player, walls, w, h));
-                    AStarPtr opponentNewMove(new AStar(opponent, walls, w, h));
-                    int newDiffLength = ownNewMove->getLength() - opponentNewMove->getLength();
-                    int decreaseDiffLength = diffLength - newDiffLength;
-                    if(decreaseDiffLength > bestDecreaseDiffLength)
-                    {
-                    	bestDecreaseDiffLength = decreaseDiffLength;
-                    	wallToPlace = newWall;
-                    }
-                }
+            	vector<WallPtr> newWalls = Wall::getWallsInDirection(opponent->getX(), opponent->getY(), opponentMove->getDirection());
+            	for(WallPtr newWall : newWalls){
+            		if(newWall->hasValidCoords() && !newWall->isPlacingOnOtherWall(walls)){
+                        walls.push_back(newWall);
+                        AStarPtr ownNewMove(new AStar(ownPlayer, walls, w, h));
+                        AStarPtr opponentNewMove(new AStar(opponent, walls, w, h));
+                        if(ownNewMove->getDirection() != Direction::None && opponentNewMove->getDirection() != Direction::None){
+                            int newDiffLength = ownNewMove->getLength() - opponentNewMove->getLength();
+                            int decreaseDiffLength = diffLength - newDiffLength;
+                            if(decreaseDiffLength > bestDecreaseDiffLength)
+                            {
+                            	bestDecreaseDiffLength = decreaseDiffLength;
+                            	wallToPlace = newWall;
+                            }
+                        }
+                        walls.pop_back();
+            		}
+            	}
         	}
         }
     }
@@ -433,7 +299,7 @@ int main()
         	return -1;
         }
         vector<PlayerPtr> opponents = getOpponents(players, myId);
-        vector<WallPtr> walls = listWalls();
+        vector<WallPtr> walls = getWalls();
         string resultStr = shortestDirection(ownPlayer, opponents, walls, w, h);
         cout << resultStr << endl; // action: LEFT, RIGHT, UP, DOWN or "putX putY putOrientation" to place a wall
     }
@@ -462,6 +328,9 @@ Player::~Player() {
  *  Created on: 19 Mar 2017
  *      Author: sbl
  */
+Wall::~Wall() {
+	// TODO Auto-generated destructor stub
+}
 std::string Wall::getOrientation() const {
 	return orientation;
 }
@@ -471,8 +340,63 @@ int Wall::getX() const {
 int Wall::getY() const {
 	return y;
 }
-Wall::~Wall() {
-	// TODO Auto-generated destructor stub
+bool Wall::hasValidCoords()
+{
+    if(orientation.compare("H") == 0 && x > -1 && x < 8 && y > 0 && y < 9)
+    {
+        return true;
+    }
+    if(orientation.compare("V") == 0 && x > 0 && x < 9 && y > -1 && y < 8)
+    {
+        return true;
+    }
+    return false;
+}
+bool Wall::isPlacingOnOtherWall(const std::vector<WallPtr>& walls)
+{
+    for(WallPtr w: walls)
+    {
+        bool sameDirectionFail = false;
+        bool otherDirectionFail = false;
+        if(orientation.compare("H") == 0){
+            sameDirectionFail = w->getOrientation().compare("H") == 0 && y == w->getY() && (x == w->getX()-1 || x == w->getX() || x == w->getX() + 1);
+            otherDirectionFail =w->getOrientation().compare("V") == 0 && y == w->getY()+1 && x == w->getX()-1;
+            if(sameDirectionFail || otherDirectionFail)
+                return true;
+        }
+        else
+        {
+            sameDirectionFail = w->getOrientation().compare("V") == 0 && x == w->getX() && (y == w->getY()-1 || y == w->getY() || y == w->getY() + 1);
+            otherDirectionFail =w->getOrientation().compare("H") == 0 && x == w->getX()+1 && y == w->getY()-1;
+            if(sameDirectionFail || otherDirectionFail)
+                return true;
+        }
+        //cerr << "isPlacingOnOtherWall: " << w.x << " " << w.y << " " << w.orientation  << endl;
+    }
+    return false;
+}
+std::vector<WallPtr> Wall::getWallsInDirection(int x, int y, const Direction& d){
+    std::vector<WallPtr> walls;
+    switch(d)
+    {
+        case Direction::Up:
+            walls.push_back(WallPtr(new Wall(x, y, "H")));
+            walls.push_back(WallPtr(new Wall(x-1, y, "H")));
+            break;
+        case Direction::Down:
+            walls.push_back(WallPtr(new Wall(x, y+1, "H")));
+            walls.push_back(WallPtr(new Wall(x-1, y+1, "H")));
+            break;
+        case Direction::Left:
+            walls.push_back(WallPtr(new Wall(x, y, "V")));
+            walls.push_back(WallPtr(new Wall(x, y-1, "V")));
+            break;
+        case Direction::Right:
+            walls.push_back(WallPtr(new Wall(x+1, y, "V")));
+            walls.push_back(WallPtr(new Wall(x+1, y-1, "V")));
+            break;
+    }
+    return walls;
 }
 /*
  * Node.cpp

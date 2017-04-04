@@ -1,7 +1,7 @@
 #include <iostream>
-#include <string>
 #include <vector>
-#include <algorithm>
+
+#include "Node.h"
 
 using namespace std;
 
@@ -15,51 +15,42 @@ int main()
     int height; // the number of cells on the Y axis
     cin >> height; cin.ignore();
     
-    bool cells [width][height]; //2-dim array over grid. Cell is true if there is a node in the cell, otherwise false
-    for (int i = 0; i < height; i++) {
+    //x: current column
+    //y: current row
+    //frontWidth[y]: observed node there is most to the right for row y
+    //frontHeight[x]: observed node there is most to the bottom for column x
+
+    vector<NodePtr> frontWidth(height, nullptr); //frontWidht[y]
+    vector<NodePtr> frontHeight(width, nullptr);
+
+    vector<NodePtr> result;
+    
+    for(int y=0; y<height; ++y){
         string line; // width characters, each either 0 or .
         getline(cin, line);
-        
-        for(int j=0; j<width; ++j)
-        {
-            cells[j][i] = line[j] == '0';
+        for(int x=0; x<width; ++x){
+        	if( line[x] == '0'){
+            	if(frontWidth[y] != nullptr) frontWidth[y]->setRightNeighbor(x);
+            	if(frontHeight[x]  != nullptr) frontHeight[x]->setBottomNeighbor(y);
+
+            	NodePtr observedNode(new Node(x, y));
+            	result.push_back(observedNode);
+
+            	frontWidth[y] = observedNode;
+            	frontHeight[x] = observedNode;
+        	}
+
         }
     }
-    
-    for(int i=0; i<height; i++) 
-    {
-        for(int j=0; j<width; j++)
-        {
-            if(cells[j][i]) //cell contains node
-            {
-                int x1, y1, x2, y2;
-                x1 = y1 = x2 = y2 = -1;
 
-                // find right neighbor node to the node
-                for(int k = j+1; k<width; k++)
-                {
-                    if(cells[k][i])
-                    {
-                        x1 = k;
-                        y1 = i;
-                        break;
-                    }
-                }
-                
-                // find bottom neighbor node to the node
-                for(int k = i+1; k<height; k++)
-                {
-                    if(cells[j][k])
-                    {
-                        x2 = j;
-                        y2 = k;
-                        break;
-                    }
-                }
+    for(NodePtr n : result){
+    	int rightNeighborX = n->getRightNeighbor();
+    	int rightNeighborY = rightNeighborX != -1 ? n->getY() : -1;
 
-                cout << j << " " << i << " " << x1 << " "  << y1 << " " << x2 << " "  << y2 << endl; // Three coordinates: a node, its right neighbor, its bottom neighbor
-            }
-        }    
+    	int bottomNeighborY = n->getBottomNeighbor();
+    	int bottomNeighborX = bottomNeighborY != -1 ? n->getX() : -1;
+
+        cout << n->getX() << " " << n->getY() << " " << rightNeighborX << " "  << rightNeighborY << " " << bottomNeighborX << " "  << bottomNeighborY << endl; // Three coordinates: a node, its right neighbor, its bottom neighbor
     }
 
     // Write an action using cout. DON'T FORGET THE "<< endl"

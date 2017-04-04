@@ -241,6 +241,8 @@ Direction AStar::reverseDirection(Direction direction)
             return Direction:: Down;
         case Direction::Down:
             return Direction::Up;
+        case Direction::None:
+            return Direction::None;
     }
 
     return Direction::None;
@@ -270,6 +272,10 @@ NodePtr AStar::getFromNode(const vector<NodePtr>& closed, NodePtr node)
             x = node->getX();
             y = node->getY() + 1;
             break;
+        case Direction::None:
+        	x = -1;
+        	y = -1;
+        	break;
     }
 
     for(NodePtr c: closed)

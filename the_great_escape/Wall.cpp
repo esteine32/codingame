@@ -58,34 +58,10 @@ bool Wall::isPlacingOnOtherWall(const std::vector<WallPtr>& walls)
             if(sameDirectionFail || otherDirectionFail)
                 return true;
         }
-        //cerr << "isPlacingOnOtherWall: " << w.x << " " << w.y << " " << w.orientation  << endl;
     }
     return false;
 }
 
-std::vector<WallPtr> Wall::getWallsInDirection(int x, int y, const Direction& d){
-
-    std::vector<WallPtr> walls;
-
-    switch(d)
-    {
-        case Direction::Up:
-            walls.push_back(WallPtr(new Wall(x, y, "H")));
-            walls.push_back(WallPtr(new Wall(x-1, y, "H")));
-            break;
-        case Direction::Down:
-            walls.push_back(WallPtr(new Wall(x, y+1, "H")));
-            walls.push_back(WallPtr(new Wall(x-1, y+1, "H")));
-            break;
-        case Direction::Left:
-            walls.push_back(WallPtr(new Wall(x, y, "V")));
-            walls.push_back(WallPtr(new Wall(x, y-1, "V")));
-            break;
-        case Direction::Right:
-            walls.push_back(WallPtr(new Wall(x+1, y, "V")));
-            walls.push_back(WallPtr(new Wall(x+1, y-1, "V")));
-            break;
-    }
-
-    return walls;
+std::string Wall::toString(){
+    return std::to_string(x) + " " + std::to_string(y) + " " + orientation;
 }

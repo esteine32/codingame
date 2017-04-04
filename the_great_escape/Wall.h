@@ -21,6 +21,7 @@ class Wall {
     int y;
     std::string orientation;
 
+
 public:
 	Wall(int x, int y, std::string o) : x(x), y(y), orientation(o){}
 	virtual ~Wall();
@@ -29,7 +30,7 @@ public:
 	int getY() const;
 	bool hasValidCoords();
 	bool isPlacingOnOtherWall(const std::vector<WallPtr>& walls);
-	static std::vector<WallPtr> getWallsInDirection(int x, int y, const Direction& d);
+	std::string toString();
 };
 
 

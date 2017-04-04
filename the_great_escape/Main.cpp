@@ -20,7 +20,9 @@ using namespace std;
 
 
 
-vector<PlayerPtr> listPlayers(int playerCount)
+int myWallCount;
+
+vector<PlayerPtr> getPlayers(int playerCount)
 {
     vector<PlayerPtr> players;
     for (int i = 0; i < playerCount; i++) {
@@ -77,35 +79,63 @@ vector<WallPtr> getWalls()
     return walls;
 }
 
-string getMoveStr(Direction d)
+
+std::vector<WallPtr> getWallsInDirection(int x, int y, const Direction& d){
+
+    std::vector<WallPtr> walls;
+
+    switch(d)
+    {
+        case Direction::Up:
+            walls.push_back(WallPtr(new Wall(x, y, "H")));
+            walls.push_back(WallPtr(new Wall(x-1, y, "H")));
+            break;
+        case Direction::Down:
+            walls.push_back(WallPtr(new Wall(x, y+1, "H")));
+            walls.push_back(WallPtr(new Wall(x-1, y+1, "H")));
+            break;
+        case Direction::Left:
+            walls.push_back(WallPtr(new Wall(x, y, "V")));
+            walls.push_back(WallPtr(new Wall(x, y-1, "V")));
+            break;
+        case Direction::Right:
+            walls.push_back(WallPtr(new Wall(x+1, y, "V")));
+            walls.push_back(WallPtr(new Wall(x+1, y-1, "V")));
+            break;
+        case Direction::None:
+        	break;
+    }
+
+    return walls;
+}
+
+std::string getDirectionString(Direction d)
 {
+
+	std::string result = "FAIL";
     switch(d)
     {
         case Direction::Right:
-            return "RIGHT";
+        	result = "RIGHT";
             break;
         case Direction::Left:
-            return "LEFT";
+        	result = "LEFT";
             break;
         case Direction::Up:
-            return "UP";
+        	result = "UP";
             break;
         case Direction::Down:
-            return "DOWN";
+        	result = "DOWN";
+            break;
+        case Direction::None:
+        	result = "NONE";
             break;
     }
-    
-    return "FAIL";
+
+    return result;
 }
 
-string getWallStr(WallPtr w)
-{
-    return to_string(w->getX()) + " " + to_string(w->getY()) + " " + w->getOrientation();
-}
-
-int myWallCount;
-
-string shortestDirection(const PlayerPtr ownPlayer, const vector<PlayerPtr>& opponents, vector<WallPtr> walls, int w, int h)
+string getOutput(const PlayerPtr ownPlayer, const vector<PlayerPtr>& opponents, vector<WallPtr> walls, int w, int h)
 {
     AStarPtr ownMove(new AStar(ownPlayer, walls, w, h));
 
@@ -128,7 +158,7 @@ string shortestDirection(const PlayerPtr ownPlayer, const vector<PlayerPtr>& opp
         	if(opponentMove->getLength() < ownMove->getLength()){
             	int diffLength = ownMove->getLength() - opponentMove->getLength();
 
-            	vector<WallPtr> newWalls = Wall::getWallsInDirection(opponent->getX(), opponent->getY(), opponentMove->getDirection());
+            	vector<WallPtr> newWalls = getWallsInDirection(opponent->getX(), opponent->getY(), opponentMove->getDirection());
 
             	for(WallPtr newWall : newWalls){
             		if(newWall->hasValidCoords() && !newWall->isPlacingOnOtherWall(walls)){
@@ -154,17 +184,17 @@ string shortestDirection(const PlayerPtr ownPlayer, const vector<PlayerPtr>& opp
         }
     }
 
-    string resultStr = "";
+    string result = "";
     if(wallToPlace == nullptr)
     {
-        resultStr = getMoveStr(ownMove->getDirection());
+        result = getDirectionString(ownMove->getDirection());
     }
     else{
-        resultStr = getWallStr(wallToPlace);
+        result = wallToPlace->toString();
         myWallCount--;
     }
     
-    return resultStr;
+    return result;
 }
 
 
@@ -181,7 +211,7 @@ int main()
     // game loop
     while (1) {
 
-        vector<PlayerPtr> players  = listPlayers(playerCount);;
+        vector<PlayerPtr> players  = getPlayers(playerCount);;
         PlayerPtr ownPlayer = getOwnPlayer(players, myId);
         if(ownPlayer == nullptr){
         	cerr << "Own player could not be found" << endl;
@@ -191,9 +221,9 @@ int main()
 
         vector<WallPtr> walls = getWalls();
 
-        string resultStr = shortestDirection(ownPlayer, opponents, walls, w, h);
+        string result = getOutput(ownPlayer, opponents, walls, w, h);
 
-        cout << resultStr << endl; // action: LEFT, RIGHT, UP, DOWN or "putX putY putOrientation" to place a wall
+        cout << result << endl; // action: LEFT, RIGHT, UP, DOWN or "putX putY putOrientation" to place a wall
     }
 }
 

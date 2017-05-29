@@ -1,7 +1,0 @@
-Main.cpp
-Player.cpp
-Wall.cpp
-Node.cpp
-Direction.h
-AStar.cpp
-Position.cpp
